@@ -236,7 +236,7 @@ std::shared_ptr<Instr> Core::decode(uint32_t instr_code) const {
       exe_flags.use_rs1 = 1;
       exe_flags.use_imm = 1;
       exe_flags.alu_s2_imm = 1;
-      imm = // TODO:
+      imm = (0 - ((instr_code >> shift_rs2) & mask_i_imm) & 0x800) | ((instr_code >> shift_rs2) & mask_i_imm);// TODO
       break;
     case Opcode::L:
     case Opcode::JALR: {
@@ -244,7 +244,7 @@ std::shared_ptr<Instr> Core::decode(uint32_t instr_code) const {
       exe_flags.use_rs1 = 1;
       exe_flags.use_imm = 1;
       exe_flags.alu_s2_imm = 1;
-      imm = // TODO:
+      imm = (0 - ((instr_code >> shift_rs2) & mask_i_imm) & 0x800) | ((instr_code >> shift_rs2) & mask_i_imm); // TODO
     } break;
     case Opcode::SYS: {
       exe_flags.use_imm = 1;
@@ -255,7 +255,7 @@ std::shared_ptr<Instr> Core::decode(uint32_t instr_code) const {
           exe_flags.use_rs1 = 1;
         }
       }
-      imm = // TODO:
+      imm = (0 - ((instr_code >> shift_rs2) & mask_i_imm) & 0x800) | ((instr_code >> shift_rs2) & mask_i_imm);// TODO
     } break;
     case Opcode::FENCE:
       break;
@@ -269,7 +269,8 @@ std::shared_ptr<Instr> Core::decode(uint32_t instr_code) const {
     exe_flags.use_rs2 = 1;
     exe_flags.use_imm = 1;
     exe_flags.alu_s2_imm = 1;
-    imm = // TODO:
+    imm = (0 - ((((instr_code >> shift_func7) & mask_func7) << 5) | ((instr_code >> shift_rd) & mask_reg)) & 0x800) | \
+          ((((instr_code >> shift_func7) & mask_func7) << 5) | ((instr_code >> shift_rd) & mask_reg));// TODO:
   } break;
 
   case InstType::B: {
@@ -277,21 +278,29 @@ std::shared_ptr<Instr> Core::decode(uint32_t instr_code) const {
     exe_flags.use_rs2 = 1;
     exe_flags.use_imm = 1;
     exe_flags.alu_s2_imm = 1;
-    imm = // TODO:
+    imm = ((0 - ((((instr_code >> shift_func7) & 64) << 5) | (((instr_code >> shift_func7) & 63) << 4) | \
+          (((instr_code >> shift_rd) & mask_reg) >> 1) | (((instr_code >> shift_rd) & 1) << 10)) & 0x800) | \
+          ((((instr_code >> shift_func7) & 64) << 5) | (((instr_code >> shift_func7) & 63) << 4) | \
+          (((instr_code >> shift_rd) & mask_reg) >> 1) | (((instr_code >> shift_rd) & 1) << 10))) << 1;// TODO
   } break;
 
   case InstType::U: {
     exe_flags.use_rd  = 1;
     exe_flags.use_imm = 1;
     exe_flags.alu_s2_imm = 1;
-    imm = // TODO:
+    imm = ((instr_code >> shift_func3) & mask_j_imm) << shift_func3;// TODO
   } break;
 
   case InstType::J: {
     exe_flags.use_rd  = 1;
     exe_flags.use_imm = 1;
     exe_flags.alu_s2_imm = 1;
-    imm = // TODO:
+    imm = ((0 - ((((instr_code >> shift_func3) & mask_func3) << 11) | (((instr_code >> shift_rs1) & mask_reg) << 14) | \
+          (((instr_code >> shift_rs2) & mask_reg) >> 1) | (((instr_code >> shift_rs2) & 1) << 10) | \
+          (((instr_code >> shift_func7) & 64) << 13) | (((instr_code >> shift_func7) & 63) << 4)) & 0x80000) | \
+          ((((instr_code >> shift_func3) & mask_func3) << 11) | (((instr_code >> shift_rs1) & mask_reg) << 14) | \
+          (((instr_code >> shift_rs2) & mask_reg) >> 1) | (((instr_code >> shift_rs2) & 1) << 10) | \
+          (((instr_code >> shift_func7) & 64) << 13) | (((instr_code >> shift_func7) & 63) << 4))) << 1;// TODO
   } break;
 
   default:
@@ -306,47 +315,171 @@ std::shared_ptr<Instr> Core::decode(uint32_t instr_code) const {
   switch (opcode) {
   case Opcode::LUI: {
     // RV32I: LUI
-    alu_op = // TODO:
+    alu_op = AluOp::ADD;// TODO:
     break;
   }
   case Opcode::AUIPC: {
     // RV32I: AUIPC
-    alu_op = // TODO:
+    alu_op = AluOp::ADD;// TODO:
     exe_flags.alu_s1_PC = 1;
     break;
   }
   case Opcode::R: {
-    alu_op = // TODO:
+    //alu_op = // TODO:
+    switch (func3) {
+    case 0: {
+      // ADD OR SUB
+      alu_op = (func7 & 0x20) ? AluOp::SUB : AluOp::ADD;
+      break;
+    }
+    case 1: {
+      // SLL
+      alu_op = AluOp::SLL;
+      break;
+    }
+    case 2: {
+      // SLT
+      alu_op = AluOp::LTI;//?
+      break;
+    }
+    case 3: {
+      // SLTU
+      alu_op = AluOp::LTU;
+      break;
+    }
+    case 4: {
+      // XOR
+      alu_op = AluOp::XOR;
+      break;
+    }
+    case 5: {
+      // SRL OR SRA
+      alu_op = (func7 & 0x20) ? AluOp::SRA : AluOp::SRL;
+      break;
+    }
+    case 6: {
+      // OR
+      alu_op = AluOp::OR;
+      break;
+    }
+    case 7: {
+      // AND
+      alu_op = AluOp::AND;
+      break;
+    }
+    default:
+      std::abort();
+    }
+    break;
   }
   case Opcode::I: {
-    alu_op = // TODO: 
+    //alu_op = // TODO: 
+    switch (func3) {
+    case 0: {
+      // ADDI
+      alu_op = AluOp::ADD;
+      break;
+    }
+    case 1: {
+      // SLLI
+      alu_op = AluOp::SLL;
+      break;
+    }
+    case 2: {
+      // SLTI
+      alu_op = AluOp::LTI;//?
+      break;
+    }
+    case 3: {
+      // SLTIU
+      alu_op = AluOp::LTU;
+      break;
+    }
+    case 4: {
+      // XORI
+      alu_op = AluOp::XOR;
+      break;
+    }
+    case 5: {
+      // SRLI OR SRAI
+      alu_op = (func7 & 0x20) ? AluOp::SRA : AluOp::SRL;
+      break;
+    }
+    case 6: {
+      // ORI
+      alu_op = AluOp::OR;
+      break;
+    }
+    case 7: {
+      // ANDI
+      alu_op = AluOp::AND;
+      break;
+    }
+    default:
+      std::abort();
+    }
+    break;
   }
   case Opcode::B: {
     exe_flags.alu_s1_PC = 1;
-    alu_op = // TODO:
-    br_op = // TODO:
+    alu_op = AluOp::ADD;// TODO:
+    //br_op = // TODO:
+    switch (func3) {
+    case 0: {
+      // BEQ
+      br_op = BrOp::BEQ;
+      break;
+    }
+    case 1: {
+      // BNE
+      br_op = BrOp::BNE;
+      break;
+    }
+    case 4: {
+      // BLT
+      br_op = BrOp::BLT;
+      break;
+    }
+    case 5: {
+      // BGE
+      br_op = BrOp::BGE;
+      break;
+    }
+    case 6: {
+      // BLTU
+      br_op = BrOp::BLTU;
+      break;
+    }
+    case 7: {
+      // BGEU
+      br_op = BrOp::BGEU;
+      break;
+    }
+    default:
+      std::abort();
+    }
     break;
   }
   case Opcode::JAL: {
     exe_flags.alu_s1_PC = 1;
-    alu_op = // TODO:
-    br_op = // TODO:
+    alu_op = AluOp::ADD;// TODO:
+    br_op = BrOp::JAL;// TODO:
     break;
   }
   case Opcode::JALR: {
-    alu_op = // TODO:
-    br_op = // TODO:
+    alu_op = AluOp::ADD;// TODO:
+    br_op = BrOp::JALR;// TODO:
     break;
   }
   case Opcode::L: {
     // RV32I: LB, LH, LW, LBU, LHU
-    alu_op = // TODO:
+    alu_op = AluOp::ADD;// TODO:
     exe_flags.is_load = 1;
     break;
   }
   case Opcode::S: {
     // RV32I: SB, SH, SW
-    alu_op = // TODO:
+    alu_op = AluOp::ADD;// TODO:
     exe_flags.is_store = 1;
     break;
   }
