@@ -42,43 +42,43 @@ uint32_t Core::alu_unit(const Instr &instr, uint32_t rs1_data, uint32_t rs2_data
   case AluOp::NONE:
     break;
   case AluOp::ADD: {
-    rd_data = // TODO:
+    rd_data = (int32_t)alu_s1 + (int32_t)alu_s2;// TODO: ?
     break;
   }
   case AluOp::SUB: {
-    rd_data = // TODO:
+    rd_data = (int32_t)alu_s1 - (int32_t)alu_s2;// TODO: ?
     break;
   }
   case AluOp::AND: {
-    rd_data = // TODO:
+    rd_data = alu_s1 & alu_s2;// TODO:
     break;
   }
   case AluOp::OR: {
-    rd_data = // TODO:
+    rd_data = alu_s1 | alu_s2;// TODO:
     break;
   }
   case AluOp::XOR: {
-    rd_data = // TODO:
+    rd_data = alu_s1 ^ alu_s2;// TODO:
     break;
   }
   case AluOp::SLL: {
-    rd_data = // TODO:
+    rd_data = alu_s1 << alu_s2;// TODO:
     break;
   }
   case AluOp::SRL: {
-    rd_data = // TODO:
+    rd_data = alu_s1 >> alu_s2;// TODO:
     break;
   }
   case AluOp::SRA: {
-    rd_data = // TODO:
+    rd_data = (uint32_t)((int32_t)alu_s1 >> alu_s2);// TODO:?
     break;
   }
   case AluOp::LTI: {
-    rd_data = // TODO:
+    rd_data = ((int32_t)alu_s1 < (int32_t)alu_s2)? 1:0;// TODO: ?
     break;
   }
   case AluOp::LTU: {
-    rd_data = // TODO:
+    rd_data = (alu_s1 < alu_s2)? 1:0;// TODO:
     break;
   }
   default:
@@ -98,44 +98,44 @@ uint32_t Core::branch_unit(const Instr &instr, uint32_t rs1_data, uint32_t rs2_d
     break;
   case BrOp::JAL:
   case BrOp::JALR: {
-    br_taken = // TODO:
+    br_taken = true;// TODO: ?
     break;
   }
   case BrOp::BEQ: {
-    br_taken = // TODO:
+    br_taken = (rs1_data == rs2_data);// TODO:
     break;
   }
   case BrOp::BNE: {
-    br_taken = // TODO:
+    br_taken = (rs1_data != rs2_data);// TODO:
     break;
   }
   case BrOp::BLT: {
-    br_taken = // TODO:
+    br_taken = ((int32_t)rs1_data < (int32_t)rs2_data);// TODO:
     break;
   }
   case BrOp::BGE: {
-    br_taken = // TODO:
+    br_taken = ((int32_t)rs1_data >= (int32_t)rs2_data);// TODO:
     break;
   }
   case BrOp::BLTU: {
-    br_taken = // TODO:
+    br_taken = (rs1_data < rs2_data);// TODO:
     break;
   }
   case BrOp::BGEU: {
-    br_taken = // TODO:
+    br_taken = (rs1_data >= rs2_data);// TODO:
     break;
   }
   default:
     std::abort();
   }
 
-  // resolve branches
+  // resolve branches ?
   if (br_op != BrOp::NONE) {
     auto br_target = rd_data;
     if (br_taken) {
       uint32_t next_PC = PC + 4;
       if (br_op == BrOp::JAL || br_op == BrOp::JALR) {
-        rd_data = // TODO:
+        rd_data = next_PC;// TODO:
       }
       // check misprediction
       if (br_op != BrOp::JAL && br_target != next_PC) {
