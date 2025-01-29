@@ -139,7 +139,7 @@ uint32_t Core::branch_unit(const Instr &instr, uint32_t rs1_data, uint32_t rs2_d
       }
       // check misprediction
       if (br_op != BrOp::JAL && br_target != next_PC) {
-        PC_ = // TODO:
+        PC_ = br_target; // TODO:
         // flush pipeline
         if_id_.reset();
         fetch_stalled_ = false;
@@ -169,11 +169,11 @@ uint32_t Core::mem_access(const Instr &instr, uint32_t rd_data, uint32_t rs2_dat
       rd_data = sext(read_data, data_width);
       break;
     case 2: // RV32I: LW
-      rd_data = // TODO:
+      rd_data = read_data; // TODO:
       break;
     case 4: // RV32I: LBU
     case 5: // RV32I: LHU
-      rd_data = // TODO:
+      rd_data = read_data & ((1ULL << data_width) - 1); // TODO:
       break;
     default:
       std::abort();
