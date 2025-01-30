@@ -236,7 +236,9 @@ std::shared_ptr<Instr> Core::decode(uint32_t instr_code) const {
       exe_flags.use_rs1 = 1;
       exe_flags.use_imm = 1;
       exe_flags.alu_s2_imm = 1;
-      imm = (0 - ((instr_code >> shift_rs2) & mask_i_imm) & 0x800) | ((instr_code >> shift_rs2) & mask_i_imm);// TODO
+      //imm = (0 - ((instr_code >> shift_rs2) & mask_i_imm) & 0x800) | ((instr_code >> shift_rs2) & mask_i_imm);// TODO
+      imm = (instr_code >> shift_rs2) & mask_i_imm;
+      imm = (imm & (1 << 11)) ? (imm | 0xFFFFF000) : imm;
       break;
     case Opcode::L:
     case Opcode::JALR: {
