@@ -186,6 +186,9 @@ bool Core::check_data_hazards(const Instr &instr) {
   if (!ex_mem_.empty()) {
     auto& ex_data = ex_mem_.data();
     // TODO: check LDAD instruction data hazards in EX/MEM
+    if(ex_data.instr->getExeFlags().is_load && exe_flags.use_rs1 && ex_data.instr->getRd() == instr.getRs1()) {
+      return true;
+    }
   }
 
   return false;
@@ -198,12 +201,23 @@ bool Core::data_forwarding(uint32_t reg, uint32_t* data) {
     auto& ex_data = ex_mem_.data();
     auto& ex_instr = *ex_data.instr;
     // TODO: check data forwarding from EX/MEM
+    if(ex_instr.getExeFlags().use_rd && ex_instr.getRd() == reg) {
+      *data = ex_data.result;
+      forwarded = true;
+      DT(2, "Forwarding: reg=" << reg << ", data=0x" << std::hex << *data << std::dec << " from EX (#" << ex_data.uuid << ")");
+    }
+    
   }
 
   if (!forwarded && !mem_wb_.empty()) {
     auto& mem_data = mem_wb_.data();
     auto& mem_instr = *mem_data.instr;
     // TODO: check data forwarding from MEM/WB
+    if(mem_instr.getExeFlags().use_rd && mem_instr.getRd() == reg) {
+      *data = mem_data.result;
+      forwarded = true;
+      DT(2, "Forwarding: reg=" << reg << ", data=0x" << std::hex << *data << std::dec << " from MEM (#" << mem_data.uuid << ")");
+    }
   }
 
   return forwarded;
