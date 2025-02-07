@@ -274,8 +274,10 @@ std::shared_ptr<Instr> Core::decode(uint32_t instr_code) const {
     exe_flags.use_rs2 = 1;
     exe_flags.use_imm = 1;
     exe_flags.alu_s2_imm = 1;
-    // imm = (0 - ((((instr_code >> shift_func7) & mask_func7) << 5) | ((instr_code >> shift_rd) & mask_reg)) & 0x800) | \
-    //       ((((instr_code >> shift_func7) & mask_func7) << 5) | ((instr_code >> shift_rd) & mask_reg));// TODO:
+    /*
+    imm = (0 - ((((instr_code >> shift_func7) & mask_func7) << 5) | ((instr_code >> shift_rd) & mask_reg)) & 0x800) | \
+             ((((instr_code >> shift_func7) & mask_func7) << 5) | ((instr_code >> shift_rd) & mask_reg));// TODO:
+    */
     imm = ((instr_code >> 25) & 0x7F) << 5 | ((instr_code >> 7) & 0x1F);
     imm = (imm & (1 << 11)) ? (imm | 0xFFFFF000) : imm;
   } break;
@@ -285,10 +287,12 @@ std::shared_ptr<Instr> Core::decode(uint32_t instr_code) const {
     exe_flags.use_rs2 = 1;
     exe_flags.use_imm = 1;
     exe_flags.alu_s2_imm = 1;
-    // imm = ((0 - ((((instr_code >> shift_func7) & 64) << 5) | (((instr_code >> shift_func7) & 63) << 4) | \
-    //       (((instr_code >> shift_rd) & mask_reg) >> 1) | (((instr_code >> shift_rd) & 1) << 10)) & 0x800) | \
-    //       ((((instr_code >> shift_func7) & 64) << 5) | (((instr_code >> shift_func7) & 63) << 4) | \
-    //       (((instr_code >> shift_rd) & mask_reg) >> 1) | (((instr_code >> shift_rd) & 1) << 10))) << 1;// TODO
+    /* 
+    imm = ((0 - ((((instr_code >> shift_func7) & 64) << 5) | (((instr_code >> shift_func7) & 63) << 4) | \
+             (((instr_code >> shift_rd) & mask_reg) >> 1) | (((instr_code >> shift_rd) & 1) << 10)) & 0x800) | \
+             ((((instr_code >> shift_func7) & 64) << 5) | (((instr_code >> shift_func7) & 63) << 4) | \
+             (((instr_code >> shift_rd) & mask_reg) >> 1) | (((instr_code >> shift_rd) & 1) << 10))) << 1;// TODO
+    */
     auto imm_12 = (instr_code >> 31) & 0x1;
     auto imm_10_5 = (instr_code >> 25) & 0x3F;
     auto imm_4_1 = (instr_code >> 8) & 0xF;
@@ -310,12 +314,14 @@ std::shared_ptr<Instr> Core::decode(uint32_t instr_code) const {
     exe_flags.use_rd  = 1;
     exe_flags.use_imm = 1;
     exe_flags.alu_s2_imm = 1;
-    // imm = ((0 - ((((instr_code >> shift_func3) & mask_func3) << 11) | (((instr_code >> shift_rs1) & mask_reg) << 14) | \
-    //       (((instr_code >> shift_rs2) & mask_reg) >> 1) | (((instr_code >> shift_rs2) & 1) << 10) | \
-    //       (((instr_code >> shift_func7) & 64) << 13) | (((instr_code >> shift_func7) & 63) << 4)) & 0x80000) | \
-    //       ((((instr_code >> shift_func3) & mask_func3) << 11) | (((instr_code >> shift_rs1) & mask_reg) << 14) | \
-    //       (((instr_code >> shift_rs2) & mask_reg) >> 1) | (((instr_code >> shift_rs2) & 1) << 10) | \
-    //       (((instr_code >> shift_func7) & 64) << 13) | (((instr_code >> shift_func7) & 63) << 4))) << 1;// TODO
+    /*
+    imm = ((0 - ((((instr_code >> shift_func3) & mask_func3) << 11) | (((instr_code >> shift_rs1) & mask_reg) << 14) | \
+             (((instr_code >> shift_rs2) & mask_reg) >> 1) | (((instr_code >> shift_rs2) & 1) << 10) | \
+             (((instr_code >> shift_func7) & 64) << 13) | (((instr_code >> shift_func7) & 63) << 4)) & 0x80000) | \
+             ((((instr_code >> shift_func3) & mask_func3) << 11) | (((instr_code >> shift_rs1) & mask_reg) << 14) | \
+             (((instr_code >> shift_rs2) & mask_reg) >> 1) | (((instr_code >> shift_rs2) & 1) << 10) | \
+             (((instr_code >> shift_func7) & 64) << 13) | (((instr_code >> shift_func7) & 63) << 4))) << 1;// TODO
+    */
     auto imm_20    = (instr_code >> 31) & 0x1;
     auto imm_10_1  = (instr_code >> 21) & 0x3FF;
     auto imm_11    = (instr_code >> 20) & 0x1;
